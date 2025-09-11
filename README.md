@@ -26,8 +26,8 @@ Visualisation des mesures Healthy/Patho par patient, extraction de features frug
 
 ## Installation rapide
 
-> Python 3.10+ recommandé (ok avec 3.13). Besoin d’`openpyxl` pour lire l’Excel.
-
+> Python 3.10+ recommandé (ok avec 3.13).
+> 
 ```bash
 # (optionnel) créer un venv
 python -m venv .venv
@@ -36,19 +36,6 @@ python -m venv .venv
 . .\.venv\Scripts\Activate.ps1
 # macOS/Linux :
 # source .venv/bin/activate
-
-# installer les dépendances
-pip install numpy pandas matplotlib scikit-learn openpyxl
-```
-
-### (Optionnel) `requirements.txt`
-Crée un fichier `requirements.txt` avec :
-```
-numpy
-pandas
-matplotlib
-scikit-learn
-openpyxl
 ```
 Puis :
 ```bash
