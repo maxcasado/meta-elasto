@@ -1,0 +1,32 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.env/
+.venv/
+venv/
+ENV/
+
+# Jupyter/plots tmp
+.ipynb_checkpoints/
+*.png
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+
+# Build
+dist/
+build/
+
+# Optional: ignorer gros datasets générés
+# !Si tu veux versionner les CSV/XLSX, retire ces lignes ou passe par Git LFS (plus bas)
+# *.csv
+# *.xlsx
+
+# Données locales (ne pas versionner)
+Skin/
+Metabolic/
