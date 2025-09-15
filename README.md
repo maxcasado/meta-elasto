@@ -146,7 +146,7 @@ python predict.py --model ridge --pca-components 5 --annotate
 
 ---
 
-## Bonnes pratiques (small data, ~20–25 patients)
+## Bonnes pratiques (small data, ~20–25 individus)
 
 - **Toujours normaliser** pour les modèles linéaires (fait automatiquement dans le pipeline).
 - **Réduire la dimension** (PCA ou `--k-best`) → viser **3–8 features effectives**.
@@ -154,7 +154,7 @@ python predict.py --model ridge --pca-components 5 --annotate
 - **PLS** marche bien quand `n << p`.
 - **Comparer à la baseline** (prédire la moyenne) : le script affiche le **Baseline RMSE**.
 - **Inspecter les NaN** : trop de colonnes quasi vides => bruit → préférer les deltas de moyenne sur les fréquences bien couvertes.
-- **Outliers** : utiliser `--ignore` pour exclure temporairement un patient suspect et valider la stabilité.
+- **Outliers** : utiliser `--ignore 7` pour exclure temporairement un patient suspect et valider la stabilité.
 
 ---
 
