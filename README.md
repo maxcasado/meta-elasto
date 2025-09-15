@@ -1,6 +1,6 @@
 # Elastography + AI
 
-Visualisation des mesures Healthy/Patho par patient, extraction de features frugales et prédiction du **score (0–5)** avec plusieurs modèles simples adaptés au **small data**.
+Visualisation des mesures Healthy/Patho par patient, extraction de features frugales et prédiction du **score (0–6)** avec plusieurs modèles simples adaptés au **small data**.
 
 ---
 
