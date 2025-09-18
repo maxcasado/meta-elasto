@@ -80,6 +80,8 @@ def main():
     parser.add_argument("--model", type=str, default="ridge",
                         choices=["ridge", "lasso", "elastic", "pls", "rf"],
                         help="Choix du modèle")
+    parser.add_argument("--ignore", type=int, nargs="*", default=[],
+                        help="Liste d'IDs patients à ignorer (ex: --ignore 7 12)")
     parser.add_argument("--k-best", type=int, default=0,
                         help="Sélectionne les k meilleures features (0 = désactivé)")
     parser.add_argument("--pca-components", type=int, default=0,
@@ -92,8 +94,7 @@ def main():
                         help="RandomForest: max_depth (None = illimité)")
     parser.add_argument("--rf-min-samples-leaf", type=int, default=1,
                         help="RandomForest: min_samples_leaf")
-    parser.add_argument("--ignore", type=int, nargs="*", default=[],
-                        help="Liste d'IDs patients à ignorer (ex: --ignore 7 12)")
+
     parser.add_argument("--clip-min", type=float, default=None,
                         help="Borne basse pour les prédictions (ex: 0)")
     parser.add_argument("--clip-max", type=float, default=None,
@@ -109,15 +110,21 @@ def main():
         print("Pas assez de données pour entraîner (min 3 patients).")
         return
 
-    # filtrer les patients ignorés
-    if args.ignore:
-        mask = [pid not in set(args.ignore) for pid in ids]
+    # convertir '0007' -> 7, '7' -> 7
+    ignore_set = set(int(s) for s in args.ignore)  # gère str numériques
+
+    if ignore_set:
+        mask = [pid not in ignore_set for pid in ids]
         X = X.loc[mask].reset_index(drop=True)
         y = y.loc[mask].reset_index(drop=True)
-        ids = [pid for pid in ids if pid not in set(args.ignore)]
-        if len(ids) < 3:
-            print("Trop de patients ignorés. Minimum 3 requis.")
-            return
+        ids = [pid for pid in ids if pid not in ignore_set]
+        print(f"Ignored patients: {sorted(ignore_set)}")
+        print(f"X shape after ignore: {X.shape} | #patients: {len(ids)}")
+
+    if len(ids) < 3:
+        print("Trop de patients exclus. Minimum 3 requis.")
+        return
+
 
     print(f"X shape: {X.shape} | #patients: {len(ids)} | modèle: {args.model}")
 
