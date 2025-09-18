@@ -30,3 +30,4 @@ build/
 # Données locales (ne pas versionner)
 Skin/
 Metabolic/
+report/
