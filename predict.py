@@ -111,7 +111,7 @@ def main():
         return
 
     # convertir '0007' -> 7, '7' -> 7
-    ignore_set = set(int(s) for s in args.ignore)  # gère str numériques
+    ignore_set = set(int(s) for s in args.ignore)  # gère str numériques 
 
     if ignore_set:
         mask = [pid not in ignore_set for pid in ids]
