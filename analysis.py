@@ -18,7 +18,7 @@ def read_patients_scores(path):
     # convertit en numérique; l'en-tête "Patient" deviendra NaN
     df["patient"] = pd.to_numeric(df["patient"], errors="coerce")
     df["score"]   = pd.to_numeric(df["score"],   errors="coerce")
-    # enlève les lignes sans patient (en-tête, lignes vides, etc.)
+    # enlève les lignes sans patient (en-tête, lignes vides)
     df = df.dropna(subset=["patient"])
     df["patient"] = df["patient"].astype(int)
     return df
@@ -44,7 +44,7 @@ def load_measure(pid, kind):
 
 
 def common_ordered_columns(df_h, df_p, min_cov=0.3):
-    # colonnes communes, hors 't'
+
     cols_h = [c for c in df_h.columns if c != "t"]
     cols_p = [c for c in df_p.columns if c != "t"]
     cols = [c for c in cols_h if c in cols_p]
@@ -72,11 +72,11 @@ def plot_patient(pid, scores_df, k_lines=6):
     df_h = load_measure(pid, "Healthy")
     df_p = load_measure(pid, "Patho")
     if df_h is None or df_p is None:
-        print(f"Mesures manquantes pour patient {pid4(pid)}")
+        print(f"Lacking measures for patient {pid4(pid)}")
         return
     cols = common_ordered_columns(df_h, df_p)
     if not cols:
-        print(f"Aucune colonne commune exploitable pour patient {pid4(pid)}")
+        print(f"No shared column exploitable for patient {pid4(pid)}")
         return
     cols_lines = select_cols_for_lines(cols, k_lines)
     fig = plt.figure(figsize=(14,9))
@@ -91,7 +91,7 @@ def plot_patient(pid, scores_df, k_lines=6):
     sc = scores_df.loc[scores_df["patient"]==pid, "score"]
     score = sc.values[0] if len(sc) else np.nan
     ax_lines.set_title(f"Patient {pid4(pid)} – Score={score}")
-    ax_lines.set_xlabel("Temps (index)")
+    ax_lines.set_xlabel("Time (index)")
     ax_lines.set_ylabel("Amplitude")
     ax_lines.legend(ncols=3, fontsize=8)
     ax_h = fig.add_subplot(gs[1,0])
@@ -102,8 +102,8 @@ def plot_patient(pid, scores_df, k_lines=6):
         M = np.ma.array(M, mask=mask)
         im = ax.imshow(M, aspect="auto", origin="lower", interpolation="nearest")
         ax.set_title(title)
-        ax.set_xlabel("Fréquences")
-        ax.set_ylabel("Temps")
+        ax.set_xlabel("Frequences")
+        ax.set_ylabel("Time")
         ax.set_xticks(range(len(cols)))
         ax.set_xticklabels([c.replace("Hz","") for c in cols], rotation=90, fontsize=8)
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
@@ -116,8 +116,8 @@ def plot_patient(pid, scores_df, k_lines=6):
     ax_delta.bar(range(len(cols)), delta.values)
     ax_delta.set_xticks(range(len(cols)))
     ax_delta.set_xticklabels([c.replace("Hz","") for c in cols], rotation=90, fontsize=8)
-    ax_delta.set_title("Moyenne(Patho) - Moyenne(Healthy) par fréquence")
-    ax_delta.set_xlabel("Fréquences")
+    ax_delta.set_title("Mean (Patho) - Mean (Healthy) by frequency")
+    ax_delta.set_xlabel("Frequency")
     ax_delta.set_ylabel("Delta")
     plt.tight_layout()
     plt.show()
@@ -184,7 +184,7 @@ def build_dataset(scores_df):
 def plot_pca_overview(scores_df):
     X, y, ids = build_dataset(scores_df)
     if X is None:
-        print("Aucune donnée exploitable pour la PCA")
+        print("No data availablee for PCA")
         return
     scaler = StandardScaler()
     Xs = scaler.fit_transform(X.values)
@@ -196,7 +196,7 @@ def plot_pca_overview(scores_df):
         ax.annotate(pid4(pid), (Z[i,0], Z[i,1]), fontsize=8, alpha=0.8)
     cbar = plt.colorbar(sc, ax=ax)
     cbar.set_label("Score")
-    ax.set_title("PCA 2D des patients (features agrégés Healthy/Patho)")
+    ax.set_title("patients 2D PCA (aggregated features Healthy/Patho)")
     ax.set_xlabel("PC1")
     ax.set_ylabel("PC2")
     plt.tight_layout()
