@@ -15,6 +15,8 @@ from sklearn.linear_model import RidgeCV, LassoCV, ElasticNetCV
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.ensemble import RandomForestRegressor
 
+from xgboost import XGBRegressor
+
 import argparse
 
 # on réutilise ton extraction de features
@@ -68,8 +70,27 @@ def make_model(name: str, args, n_features: int) -> Pipeline:
             random_state=0,
             n_jobs=-1
         )
+
+    elif name == "xgb":
+
+        model = XGBRegressor(
+            n_estimators=args.xgb_estimators,
+            max_depth=args.xgb_max_depth,
+            learning_rate=args.xgb_learning_rate,
+            subsample=args.xgb_subsample,
+            colsample_bytree=args.xgb_colsample_bytree,
+            min_child_weight=args.xgb_min_child_weight,
+            reg_alpha=args.xgb_reg_alpha,
+            reg_lambda=args.xgb_reg_lambda,
+            objective="reg:squarederror",
+            booster="gbtree",
+            tree_method="hist",       # rapide et robuste
+            n_jobs=-1,
+            random_state=0
+        )
+
     else:
-        raise ValueError(f"Modèle inconnu: {name}")
+        raise ValueError(f"Unknown model: {name}")
 
     steps.append(("model", model))
     return Pipeline(steps)
@@ -78,22 +99,44 @@ def make_model(name: str, args, n_features: int) -> Pipeline:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="ridge",
-                        choices=["ridge", "lasso", "elastic", "pls", "rf"],
+                        choices=["ridge", "lasso", "elastic", "pls", "rf", "xgb"],
                         help="Choix du modèle")
     parser.add_argument("--ignore", type=int, nargs="*", default=[],
                         help="Liste d'IDs patients à ignorer (ex: --ignore 7 12)")
     parser.add_argument("--k-best", type=int, default=0,
                         help="Sélectionne les k meilleures features (0 = désactivé)")
+    
     parser.add_argument("--pca-components", type=int, default=0,
                         help="Nombre de composantes PCA (0 = désactivé)")
     parser.add_argument("--pls-components", type=int, default=2,
                         help="Composantes PLS (si --model pls)")
+    # Hyperparams RandomForst
     parser.add_argument("--rf-estimators", type=int, default=300,
                         help="RandomForest: n_estimators")
     parser.add_argument("--rf-max-depth", type=int, default=None,
                         help="RandomForest: max_depth (None = illimité)")
     parser.add_argument("--rf-min-samples-leaf", type=int, default=1,
                         help="RandomForest: min_samples_leaf")
+
+
+
+    # Hyperparams XGBoost
+    parser.add_argument("--xgb-estimators", type=int, default=300,
+        help="XGB: n_estimators")
+    parser.add_argument("--xgb-max-depth", type=int, default=3,
+        help="XGB: max_depth")
+    parser.add_argument("--xgb-learning-rate", type=float, default=0.05,
+        help="XGB: learning_rate (eta)")
+    parser.add_argument("--xgb-subsample", type=float, default=0.7,
+        help="XGB: subsample (0-1)")
+    parser.add_argument("--xgb-colsample-bytree", type=float, default=0.7,
+        help="XGB: colsample_bytree (0-1)")
+    parser.add_argument("--xgb-min-child-weight", type=float, default=2.0,
+        help="XGB: min_child_weight")
+    parser.add_argument("--xgb-reg-alpha", type=float, default=0.0,
+        help="XGB: L1 regularization (alpha)")
+    parser.add_argument("--xgb-reg-lambda", type=float, default=1.0,
+        help="XGB: L2 regularization (lambda)")
 
     parser.add_argument("--clip-min", type=float, default=None,
                         help="Borne basse pour les prédictions (ex: 0)")
@@ -175,8 +218,8 @@ def main():
         for i, pid in enumerate(ids_tested):
             plt.annotate(str(pid), (y_true[i], y_pred[i]),
                          textcoords="offset points", xytext=(5,5), fontsize=8, alpha=0.9)
-    plt.xlabel("Score réel")
-    plt.ylabel("Score prédit")
+    plt.xlabel("True score")
+    plt.ylabel("predicted score")
     plt.title(f"LOOCV – {args.model.upper()} (R²={r2:.3f}, RMSE={rmse:.3f})")
     plt.tight_layout()
     plt.show()
