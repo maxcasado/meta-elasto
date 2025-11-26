@@ -1,0 +1,6 @@
+keras-tcn
+scikit-learn
+openpyxl
+pandas
+numpy
+tensorflow
